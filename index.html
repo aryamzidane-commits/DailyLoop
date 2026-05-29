@@ -799,6 +799,8 @@
     <button class="nav-tab" onclick="switchPage('pembukuan')">Pembukuan</button>
     <button class="nav-tab" onclick="switchPage('penjualan')">Penjualan</button>
     <button class="nav-tab" onclick="switchPage('todo')">To Do</button>
+    <button class="nav-tab" onclick="loadFromSheets()">☁️ Muat</button>
+<button class="nav-tab" onclick="syncToSheets()">💾 Sync</button>
   </nav>
 </header>
 
@@ -1164,6 +1166,178 @@
 </div>
 
 <script>
+  // ============================================================
+//  DailyLoop — Google Sheets Sync
+//  Tambahkan kode ini ke dalam tag <script> di file HTML kamu
+//  LETAKKAN DI BAGIAN PALING ATAS, sebelum kode yang lain
+// ============================================================
+
+// ⬇️ GANTI dengan URL Web App kamu setelah deploy di Apps Script
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxs5w3FdkETqx2T5dFlTnxJ9Z8GsG4pfZKd28qYsW9qMSIwoJJ7C0YIItoIxdNE52yHhg/exec';
+
+// ── Status sync indicator ────────────────────────────────────
+function showSyncStatus(msg, type = 'info') {
+  let el = document.getElementById('syncStatus');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'syncStatus';
+    el.style.cssText = `
+      position: fixed; bottom: 20px; right: 20px;
+      padding: 10px 18px; border-radius: 30px;
+      font-size: 13px; font-weight: 500;
+      font-family: 'DM Sans', sans-serif;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+      z-index: 9999; transition: all 0.3s;
+      display: flex; align-items: center; gap: 8px;
+    `;
+    document.body.appendChild(el);
+  }
+  const colors = {
+    info:    { bg: '#c4d8e8', color: '#2a5070' },
+    success: { bg: '#c8d8cc', color: '#2a5040' },
+    error:   { bg: '#f2d0d0', color: '#802030' },
+    loading: { bg: '#f2e8e4', color: '#6b5c58' },
+  };
+  const c = colors[type] || colors.info;
+  el.style.background = c.bg;
+  el.style.color = c.color;
+  el.textContent = msg;
+  el.style.opacity = '1';
+
+  if (type !== 'loading') {
+    setTimeout(() => { el.style.opacity = '0'; }, 3000);
+  }
+}
+
+// ── PUSH: kirim semua data ke Google Sheets ──────────────────
+async function syncToSheets() {
+  showSyncStatus('⏳ Menyinkronkan ke Sheets...', 'loading');
+  try {
+    const payload = {
+      products:  typeof products  !== 'undefined' ? products  : [],
+      pbEntries: typeof pbEntries !== 'undefined' ? pbEntries : [],
+      pjEntries: typeof pjEntries !== 'undefined' ? pjEntries : [],
+      tdEntries: typeof tdEntries !== 'undefined' ? tdEntries : [],
+    };
+
+    const res = await fetch(SHEETS_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' }, // Apps Script butuh text/plain
+      body: JSON.stringify({ action: 'SYNC_ALL', payload }),
+    });
+    const data = await res.json();
+    if (data.ok) {
+      showSyncStatus('✅ Tersimpan ke Google Sheets!', 'success');
+    } else {
+      showSyncStatus('⚠️ Gagal sync: ' + (data.error || ''), 'error');
+    }
+  } catch (err) {
+    showSyncStatus('❌ Error: ' + err.message, 'error');
+  }
+}
+
+// ── PULL: ambil data terbaru dari Google Sheets ──────────────
+async function loadFromSheets() {
+  showSyncStatus('⏳ Mengambil data dari Sheets...', 'loading');
+  try {
+    const res  = await fetch(SHEETS_URL + '?t=' + Date.now());
+    const data = await res.json();
+    if (!data.ok) { showSyncStatus('⚠️ Gagal load: ' + (data.error || ''), 'error'); return; }
+
+    // ── Overwrite localStorage dengan data dari Sheets ──
+    if (data.products && data.products.length > 0) {
+      // Konversi kembali format dari Sheets ke format app
+      const converted = data.products.map(row => {
+        let komponen = { bahan: [], kemasan: [], tenaga: [] };
+        try { komponen = JSON.parse(row['Komponen (JSON)'] || '{}'); } catch(e) {}
+        return {
+          id:        row['ID'],
+          name:      row['Nama Produk'],
+          hargaJual: Number(row['Harga Jual']) || 0,
+          margin:    Number(row['Margin (%)']) || 0,
+          bahan:     komponen.bahan   || [],
+          kemasan:   komponen.kemasan || [],
+          tenaga:    komponen.tenaga  || [],
+        };
+      });
+      localStorage.setItem('hpp_products_v3', JSON.stringify(converted));
+    }
+
+    if (data.pbEntries && data.pbEntries.length > 0) {
+      const converted = data.pbEntries.map(row => ({
+        id:          row['ID'],
+        tanggal:     row['Tanggal'],
+        keterangan:  row['Keterangan'],
+        masuk:       Number(row['Masuk'])  || 0,
+        keluar:      Number(row['Keluar']) || 0,
+        saldo:       Number(row['Saldo Kumulatif']) || 0,
+        kategori:    row['Kategori'],
+        catatan:     row['Catatan'],
+      }));
+      localStorage.setItem('pb_entries_v1', JSON.stringify(converted));
+    }
+
+    if (data.pjEntries && data.pjEntries.length > 0) {
+      const converted = data.pjEntries.map(row => ({
+        id:          row['ID'],
+        tanggal:     row['Tanggal'],
+        produkNama:  row['Produk'],
+        keterangan:  row['Keterangan'],
+        kuantitas:   Number(row['Kuantitas'])  || 0,
+        hargaJual:   Number(row['Harga Jual']) || 0,
+        hppPerItem:  Number(row['HPP/item'])   || 0,
+      }));
+      localStorage.setItem('pj_entries_v1', JSON.stringify(converted));
+    }
+
+    if (data.tdEntries && data.tdEntries.length > 0) {
+      const converted = data.tdEntries.map(row => ({
+        id:        row['ID'],
+        nama:      row['Nama Tugas'],
+        kategori:  row['Kategori'],
+        prioritas: row['Prioritas'],
+        done:      row['Selesai'] === 'Ya',
+        catatan:   row['Catatan'],
+      }));
+      localStorage.setItem('td_entries_v1', JSON.stringify(converted));
+    }
+
+    showSyncStatus('✅ Data berhasil dimuat dari Sheets!', 'success');
+
+    // Refresh tampilan
+    if (typeof init    === 'function') init();
+    if (typeof pbInit  === 'function') pbInit();
+    if (typeof pjInit  === 'function') pjInit();
+    if (typeof tdInit  === 'function') tdInit();
+
+  } catch (err) {
+    showSyncStatus('❌ Error: ' + err.message, 'error');
+  }
+}
+
+// ── Auto-sync setiap kali localStorage berubah ───────────────
+// Wrapper yang otomatis sync setelah save
+const _origSetItem = localStorage.setItem.bind(localStorage);
+localStorage.setItem = function(key, value) {
+  _origSetItem(key, value);
+  // Debounce: tunggu 1.5 detik setelah perubahan terakhir baru sync
+  clearTimeout(window._syncTimer);
+  window._syncTimer = setTimeout(() => {
+    syncToSheets();
+  }, 1500);
+};
+
+// ── Tombol sync manual di header ─────────────────────────────
+// Tambahkan tombol ini ke nav di HTML kamu:
+// <button class="nav-tab" onclick="loadFromSheets()">☁️ Muat dari Sheets</button>
+// <button class="nav-tab" onclick="syncToSheets()">💾 Simpan ke Sheets</button>
+
+// ── Auto-load dari Sheets saat pertama buka ──────────────────
+window.addEventListener('load', () => {
+  // Load dari Sheets saat buka halaman (opsional, uncomment jika mau)
+  // loadFromSheets();
+});
+
 const STORAGE_KEY = 'hpp_products_v1';
 let products = [];
 let editIdx = null;
