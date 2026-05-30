@@ -1252,13 +1252,17 @@ async function loadFromSheets() {
         let komponen = { bahan: [], kemasan: [], tenaga: [] };
         try { komponen = JSON.parse(row['Komponen (JSON)'] || '{}'); } catch(e) {}
         return {
-          id:        row['ID'],
-          name:      row['Nama Produk'],
-          hargaJual: Number(row['Harga Jual']) || 0,
-          margin:    Number(row['Margin (%)']) || 0,
-          bahan:     komponen.bahan   || [],
-          kemasan:   komponen.kemasan || [],
-          tenaga:    komponen.tenaga  || [],
+          id:           row['ID'],
+          name:         row['Nama Produk'],
+          hargaJual:    Number(row['Harga Jual']) || 0,
+          margin:       Number(row['Margin (%)']) || 0,
+          waktuProduksi: '',
+          upahJam:      0,
+          durasi:       0,
+          bahan:        komponen.bahan   || [],
+          alat:         komponen.alat    || [],
+          kemasan:      komponen.kemasan || [],
+          tenaga:       komponen.tenaga  || [],
         };
       });
       localStorage.setItem('hpp_products_v1', JSON.stringify(converted));
@@ -1266,39 +1270,39 @@ async function loadFromSheets() {
 
     if (data.pbEntries && data.pbEntries.length > 0) {
       const converted = data.pbEntries.map(row => ({
-        id:          row['ID'],
-        tanggal:     row['Tanggal'],
-        keterangan:  row['Keterangan'],
-        masuk:       Number(row['Masuk'])  || 0,
-        keluar:      Number(row['Keluar']) || 0,
-        saldo:       Number(row['Saldo Kumulatif']) || 0,
-        kategori:    row['Kategori'],
-        catatan:     row['Catatan'],
+        id:         row['ID']          || crypto.randomUUID(),
+        tanggal:    row['Tanggal']     || '',
+        keterangan: row['Keterangan']  || '',
+        masuk:      Number(row['Masuk'])  || 0,
+        keluar:     Number(row['Keluar']) || 0,
+        saldo:      Number(row['Saldo Kumulatif']) || 0,
+        kategori:   row['Kategori']    || '',
+        catatan:    row['Catatan']     || '',
       }));
       localStorage.setItem('pb_entries_v1', JSON.stringify(converted));
     }
 
     if (data.pjEntries && data.pjEntries.length > 0) {
       const converted = data.pjEntries.map(row => ({
-        id:          row['ID'],
-        tanggal:     row['Tanggal'],
-        produkNama:  row['Produk'],
-        keterangan:  row['Keterangan'],
-        kuantitas:   Number(row['Kuantitas'])  || 0,
-        hargaJual:   Number(row['Harga Jual']) || 0,
-        hppPerItem:  Number(row['HPP/item'])   || 0,
+        id:         row['ID']          || crypto.randomUUID(),
+        tanggal:    row['Tanggal']     || '',
+        produkNama: row['Produk']      || '',
+        keterangan: row['Keterangan']  || '',
+        kuantitas:  Number(row['Kuantitas'])  || 0,
+        hargaJual:  Number(row['Harga Jual']) || 0,
+        hppPerItem: Number(row['HPP/item'])   || 0,
       }));
       localStorage.setItem('pj_entries_v1', JSON.stringify(converted));
     }
 
     if (data.tdEntries && data.tdEntries.length > 0) {
       const converted = data.tdEntries.map(row => ({
-        id:        row['ID'],
-        nama:      row['Nama Tugas'],
-        kategori:  row['Kategori'],
-        prioritas: row['Prioritas'],
+        id:        row['ID']        || crypto.randomUUID(),
+        nama:      row['Nama Tugas']|| '',
+        kategori:  row['Kategori']  || 'Lainnya',
+        prioritas: row['Prioritas'] || 'sedang',
         done:      row['Selesai'] === 'Ya',
-        catatan:   row['Catatan'],
+        catatan:   row['Catatan']   || '',
       }));
       localStorage.setItem('td_entries_v1', JSON.stringify(converted));
     }
@@ -1404,10 +1408,10 @@ function init() {
 function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(products)); }
 function rp(n) { return 'Rp' + Number(n).toLocaleString('id-ID'); }
 function calcHPP(p) {
-  const subBahan   = p.bahan.reduce((s,c) => s + c.total, 0);
-  const subAlat    = p.alat.reduce((s,c) => s + c.total, 0);
-  const tenaga     = p.upahJam * p.durasi;
-  const subKemasan = p.kemasan.reduce((s,c) => s + c.total, 0);
+  const subBahan   = (p.bahan   || []).reduce((s,c) => s + (c.total || 0), 0);
+  const subAlat    = (p.alat    || []).reduce((s,c) => s + (c.total || 0), 0);
+  const tenaga     = (p.upahJam || 0) * (p.durasi || 0);
+  const subKemasan = (p.kemasan || []).reduce((s,c) => s + (c.total || 0), 0);
   return { subBahan, subAlat, tenaga, subKemasan, total: subBahan + subAlat + tenaga + subKemasan };
 }
 
@@ -1579,9 +1583,9 @@ function openModal(idx = null) {
     document.getElementById('prodWaktu').value = p.waktuProduksi;
     document.getElementById('upahJam').value   = p.upahJam;
     document.getElementById('durasi').value    = p.durasi;
-    tmpComps.bahan   = p.bahan.map(c => ({...c}));
-    tmpComps.alat    = p.alat.map(c => ({...c}));
-    tmpComps.kemasan = p.kemasan.map(c => ({...c}));
+    tmpComps.bahan   = (p.bahan   || []).map(c => ({...c}));
+    tmpComps.alat    = (p.alat    || []).map(c => ({...c}));
+    tmpComps.kemasan = (p.kemasan || []).map(c => ({...c}));
   } else {
     document.getElementById('modalTitle').textContent = 'Tambah Produk Baru';
     ['prodName','prodHarga','prodWaktu','upahJam','durasi'].forEach(id => document.getElementById(id).value = '');
