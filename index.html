@@ -1239,6 +1239,7 @@ async function syncToSheets() {
 // ── PULL: ambil data terbaru dari Google Sheets ──────────────
 async function loadFromSheets() {
   showSyncStatus('⏳ Mengambil data dari Sheets...', 'loading');
+  _isLoadingFromSheets = true;
   try {
     const res  = await fetch(SHEETS_URL + '?t=' + Date.now());
     const data = await res.json();
@@ -1260,7 +1261,7 @@ async function loadFromSheets() {
           tenaga:    komponen.tenaga  || [],
         };
       });
-      localStorage.setItem('hpp_products_v3', JSON.stringify(converted));
+      localStorage.setItem('hpp_products_v1', JSON.stringify(converted));
     }
 
     if (data.pbEntries && data.pbEntries.length > 0) {
@@ -1312,14 +1313,18 @@ async function loadFromSheets() {
 
   } catch (err) {
     showSyncStatus('❌ Error: ' + err.message, 'error');
+  } finally {
+    _isLoadingFromSheets = false;
   }
 }
 
 // ── Auto-sync setiap kali localStorage berubah ───────────────
 // Wrapper yang otomatis sync setelah save
+let _isLoadingFromSheets = false; // flag: jangan sync balik saat sedang load
 const _origSetItem = localStorage.setItem.bind(localStorage);
 localStorage.setItem = function(key, value) {
   _origSetItem(key, value);
+  if (_isLoadingFromSheets) return; // cegah loop
   // Debounce: tunggu 1.5 detik setelah perubahan terakhir baru sync
   clearTimeout(window._syncTimer);
   window._syncTimer = setTimeout(() => {
@@ -1334,8 +1339,7 @@ localStorage.setItem = function(key, value) {
 
 // ── Auto-load dari Sheets saat pertama buka ──────────────────
 window.addEventListener('load', () => {
-  // Load dari Sheets saat buka halaman (opsional, uncomment jika mau)
-  // loadFromSheets();
+  loadFromSheets();
 });
 
 const STORAGE_KEY = 'hpp_products_v1';
