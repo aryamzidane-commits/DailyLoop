@@ -1271,7 +1271,7 @@ async function loadFromSheets() {
     if (data.pbEntries && Array.isArray(data.pbEntries) && data.pbEntries.length > 0) {
       const converted = data.pbEntries.map(row => ({
         id:         row['ID']         || crypto.randomUUID(),
-        tanggal:    row['Tanggal']    || '',
+        tanggal:    formatTanggal(row['Tanggal']),
         keterangan: row['Keterangan'] || '',
         masuk:      Number(row['Masuk'])  || 0,
         keluar:     Number(row['Keluar']) || 0,
@@ -1286,7 +1286,7 @@ async function loadFromSheets() {
     if (data.pjEntries && Array.isArray(data.pjEntries) && data.pjEntries.length > 0) {
       const converted = data.pjEntries.map(row => ({
         id:         row['ID']         || crypto.randomUUID(),
-        tanggal:    row['Tanggal']    || '',
+        tanggal:    formatTanggal(row['Tanggal']),
         produkNama: row['Produk']     || '',
         keterangan: row['Keterangan'] || '',
         kuantitas:  Number(row['Kuantitas'])  || 0,
@@ -1410,6 +1410,20 @@ function init() {
 }
 function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(products)); }
 function rp(n) { return 'Rp' + Number(n).toLocaleString('id-ID'); }
+function formatTanggal(raw) {
+  if (!raw) return '';
+  // Kalau sudah format dd/mm/yyyy, langsung return
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(raw)) return raw;
+  // Kalau format ISO (2026-05-23T17:00:00.000Z atau 2026-05-23)
+  try {
+    const d = new Date(raw);
+    if (isNaN(d.getTime())) return raw;
+    const dd = String(d.getUTCDate()).padStart(2,'0');
+    const mm = String(d.getUTCMonth()+1).padStart(2,'0');
+    const yyyy = d.getUTCFullYear();
+    return dd+'/'+mm+'/'+yyyy;
+  } catch(e) { return raw; }
+}
 function calcHPP(p) {
   const subBahan   = (p.bahan   || []).reduce((s,c) => s + (c.total || 0), 0);
   const subAlat    = (p.alat    || []).reduce((s,c) => s + (c.total || 0), 0);
