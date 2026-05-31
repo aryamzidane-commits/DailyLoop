@@ -1281,7 +1281,7 @@ async function loadFromSheets() {
     if (data.pbEntries && data.pbEntries.length > 0) {
       const converted = data.pbEntries.map(row => ({
         id:          row['ID'],
-        tanggal:     row['Tanggal'],
+        tanggal:     formatTanggal(row['Tanggal']),
         keterangan:  row['Keterangan'],
         masuk:       Number(row['Masuk'])  || 0,
         keluar:      Number(row['Keluar']) || 0,
@@ -1296,7 +1296,7 @@ async function loadFromSheets() {
     if (data.pjEntries && data.pjEntries.length > 0) {
       const converted = data.pjEntries.map(row => ({
         id:          row['ID'],
-        tanggal:     row['Tanggal'],
+        tanggal:     formatTanggal(row['Tanggal']),
         produkNama:  row['Produk'],
         keterangan:  row['Keterangan'],
         kuantitas:   Number(row['Kuantitas'])  || 0,
