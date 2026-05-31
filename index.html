@@ -36,11 +36,12 @@
   header {
     background: #faf3f0;
     border-bottom: 1px solid var(--rose);
-    padding: 22px 40px;
+    padding: 12px 40px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 16px;
+    flex-wrap: wrap;
   }
   .brand {
     display: flex;
@@ -51,9 +52,13 @@
     display: none;
   }
   .brand-logo {
-    height: 56px;
+    height: 52px;
     width: auto;
+    max-width: 220px;
     object-fit: contain;
+  }
+  @media(max-width: 600px) {
+    .brand-logo { height: 38px; max-width: 160px; }
   }
   .brand-name {
     display: none;
