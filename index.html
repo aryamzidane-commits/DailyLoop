@@ -110,6 +110,12 @@
     animation: fadeUp .3s ease;
     line-height: 1.6;
   }
+  .alert-box.alert-aman {
+    background: #f0faf4;
+    border: 1px solid #a8dbb8;
+    border-left: 4px solid #5a9a6a;
+    color: #2d6a4a;
+  }
   .alert-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
 
   /* ── Accordion card ── */
@@ -1588,13 +1594,19 @@ function checkAlerts() {
   });
   const alertBox  = document.getElementById('alertBox');
   const alertText = document.getElementById('alertText');
-  const notes = [
-    '⚠️ <strong>Koreksi data asli:</strong> Subtotal Kemasan "Tumbler Holder Rajut" di spreadsheet asli tercatat Rp9.500 — setelah dihitung ulang, total aktual = <strong>Rp3.500</strong>. HPP dikoreksi menjadi <strong>Rp17.000</strong> (bukan Rp23.000). Sesuaikan jika ada biaya kemasan lain yang belum tercatat.',
-    ...issues
-  ];
-  alertText.innerHTML = notes.join('<br><br>');
-  alertBox.style.display = 'flex';
-}
+  alertBox.classList.toggle('alert-aman', issues.length === 0);
+  if (issues.length > 0) {
+    alertText.innerHTML = issues.join('<br><br>');
+    alertBox.style.display = 'flex';
+  } else {
+    alertText.innerHTML = `🎉 <strong>Semua produk dalam kondisi untung!</strong><br><br>
+    Tetap semangat ya, Sayang! Setiap rajutan yang kamu buat itu bukan cuma produk —
+    ada cinta, kesabaran, dan kerja keras di dalamnya. Usahamu nyata, dan hasilnya
+    perlahan tapi pasti mulai kelihatan. Semoga Allah mudahkan setiap langkah bisnis
+    kecil kita, berkahi setiap hasil yang didapat, dan jadikan ini jalan rezeki yang
+    barokah untuk keluarga kita. Aamiin 🤍`;
+    alertBox.style.display = 'flex';
+  }
 
 // ── Modal ──────────────────────────────────────────────────
 function openModal(idx = null) {
