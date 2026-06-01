@@ -968,18 +968,20 @@
     </div>
   </div>
 
-  <!-- Filter tabs -->
-  <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;">
-    <button class="td-filter active" onclick="tdSetFilter('all')" data-filter="all">Semua</button>
-    <button class="td-filter" onclick="tdSetFilter('pending')" data-filter="pending">⏳ Belum</button>
-    <button class="td-filter" onclick="tdSetFilter('done')" data-filter="done">✅ Selesai</button>
+  <!-- Filter tabs + Tambah -->
+  <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;align-items:center;justify-content:space-between;">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="td-filter active" onclick="tdSetFilter('all')" data-filter="all">Semua</button>
+      <button class="td-filter" onclick="tdSetFilter('pending')" data-filter="pending">⏳ Belum</button>
+      <button class="td-filter" onclick="tdSetFilter('done')" data-filter="done">✅ Selesai</button>
+    </div>
+    <button class="btn-save" onclick="openTdModal()" style="white-space:nowrap; border-radius:30px; padding:10px 18px;">＋ Tambah</button>
   </div>
-
+  
   <!-- Category groups rendered here -->
   <div id="tdGroups"></div>
 
   <!-- Add task button -->
-  <button class="btn-add" style="margin-top:10px" onclick="openTdModal()">＋ Tambah Tugas Baru</button>
 </main>
 
 <!-- ══ TODO MODAL ══ -->
@@ -2272,7 +2274,7 @@ function saveTdEntry() {
     catatan:   document.getElementById('tdCatatan').value.trim(),
     done:      tdEditIdx !== null ? tdEntries[tdEditIdx].done : false,
   };
-  if (tdEditIdx !== null) tdEntries[tdEditIdx] = entry; else tdEntries.push(entry);
+  if (tdEditIdx !== null) tdEntries[tdEditIdx] = entry; else tdEntries.unshift(entry);
   tdSave(); renderTd(); closeTdModal();
 }
 
