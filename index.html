@@ -1750,6 +1750,11 @@ function renderPb() {
   let saldo = 0;
   let totalMasuk = 0, totalKeluar = 0;
 
+  pbEntries.sort((a, b) => {
+    const [da,ma,ya] = a.tanggal.split('/'); 
+    const [db,mb,yb] = b.tanggal.split('/');
+    return new Date(ya,ma-1,da) - new Date(yb,mb-1,db);
+  });
   // First pass: calculate running saldo for all entries
   const withSaldo = pbEntries.map((e, i) => {
     saldo += e.masuk - e.keluar;
@@ -1887,6 +1892,11 @@ function getPjHppForProduct(produkId) {
 function renderPj() {
   let totalOmzet = 0, totalHpp = 0, totalProfit = 0;
 
+  pjEntries.sort((a, b) => {
+    const [da,ma,ya] = a.tanggal.split('/'); 
+    const [db,mb,yb] = b.tanggal.split('/');
+    return new Date(ya,ma-1,da) - new Date(yb,mb-1,db);
+  });
   // Annotate with index and computed values first
   const annotated = pjEntries.map((e, i) => {
     const hpp    = e.hppPerItem != null ? e.hppPerItem : getPjHppForProduct(e.produkId);
