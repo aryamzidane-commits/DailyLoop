@@ -1672,7 +1672,7 @@ function saveProduct() {
     name, hargaJual: harga, waktuProduksi: waktu, upahJam: upah, durasi: dur,
     bahan: [...tmpComps.bahan], alat: [...tmpComps.alat], kemasan: [...tmpComps.kemasan],
   };
-  if (editIdx !== null) products[editIdx] = prod; else products.push(prod);
+  if (editIdx !== null) products[editIdx] = prod; else products.unshift(prod);
   save(); renderAll(); checkAlerts(); closeModal();
 }
 function editProduct(i)   { openModal(i); }
@@ -1760,7 +1760,7 @@ function renderPb() {
   pbEntries.sort((a, b) => {
     const [da,ma,ya] = a.tanggal.split('/'); 
     const [db,mb,yb] = b.tanggal.split('/');
-    return new Date(ya,ma-1,da) - new Date(yb,mb-1,db);
+    return new Date(yb,mb-1,db) - new Date(ya,ma-1,da);
   });
   // First pass: calculate running saldo for all entries
   const withSaldo = pbEntries.map((e, i) => {
@@ -1902,7 +1902,7 @@ function renderPj() {
   pjEntries.sort((a, b) => {
     const [da,ma,ya] = a.tanggal.split('/'); 
     const [db,mb,yb] = b.tanggal.split('/');
-    return new Date(ya,ma-1,da) - new Date(yb,mb-1,db);
+    return new Date(yb,mb-1,db) - new Date(ya,ma-1,da);
   });
   // Annotate with index and computed values first
   const annotated = pjEntries.map((e, i) => {
