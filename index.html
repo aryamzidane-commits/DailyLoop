@@ -811,17 +811,18 @@
     <span id="alertText"></span>
   </div>
 
-  <!-- Search HPP -->
-  <div class="search-wrap">
-    <span class="search-icon">🔍</span>
-    <input type="text" class="search-input" id="hppSearch" placeholder="Cari judul produk…" oninput="onHppSearch(this)">
-    <button class="search-clear" id="hppSearchClear" onclick="clearHppSearch()">✕</button>
+  <!-- Search + Tambah HPP -->
+  <div style="display:flex; gap:10px; align-items:center; margin-bottom:18px;">
+    <div class="search-wrap" style="flex:1; margin-bottom:0;">
+      <span class="search-icon">🔍</span>
+      <input type="text" class="search-input" id="hppSearch" placeholder="Cari judul produk…" oninput="onHppSearch(this)">
+      <button class="search-clear" id="hppSearchClear" onclick="clearHppSearch()">✕</button>
+    </div>
+    <button class="btn-save" onclick="openModal()" style="white-space:nowrap; border-radius:30px; padding:10px 18px;">＋ Tambah</button>
   </div>
   <div class="search-count" id="hppSearchCount" style="display:none"></div>
-
   <div id="cardsGrid"></div>
 
-  <button class="btn-add" onclick="openModal()">＋ Tambah Produk Baru</button>
 </main>
 
 <!-- ══ PAGE: PEMBUKUAN ══ -->
@@ -854,14 +855,17 @@
     </div>
   </div>
 
-  <!-- Search Pembukuan -->
-  <div class="search-wrap">
-    <span class="search-icon">🔍</span>
-    <input type="text" class="search-input" id="pbSearch" placeholder="Cari tanggal atau keterangan…" oninput="onPbSearch(this)">
-    <button class="search-clear" id="pbSearchClear" onclick="clearPbSearch()">✕</button>
+  <!-- Search + Tambah Pembukuan -->
+  <div style="display:flex; gap:10px; align-items:center; margin-bottom:18px;">
+    <div class="search-wrap" style="flex:1; margin-bottom:0;">
+      <span class="search-icon">🔍</span>
+      <input type="text" class="search-input" id="pbSearch" placeholder="Cari tanggal atau keterangan…" oninput="onPbSearch(this)">
+      <button class="search-clear" id="pbSearchClear" onclick="clearPbSearch()">✕</button>
+    </div>
+    <button class="btn-save" onclick="openPbModal()" style="white-space:nowrap; border-radius:30px; padding:10px 18px;">＋ Tambah</button>
   </div>
   <div class="search-count" id="pbSearchCount" style="display:none"></div>
-
+  
   <!-- Table -->
   <div class="pb-table-wrap">
     <table class="pb-table" id="pbTable">
@@ -879,7 +883,6 @@
     </table>
   </div>
 
-  <button class="btn-add" style="margin-top:14px" onclick="openPbModal()">＋ Tambah Transaksi</button>
 </main>
 
 <!-- ══ PAGE: PENJUALAN & PROFIT ══ -->
@@ -919,14 +922,17 @@
     </div>
   </div>
 
-  <!-- Search Penjualan -->
-  <div class="search-wrap">
-    <span class="search-icon">🔍</span>
-    <input type="text" class="search-input" id="pjSearch" placeholder="Cari tanggal atau nama produk…" oninput="onPjSearch(this)">
-    <button class="search-clear" id="pjSearchClear" onclick="clearPjSearch()">✕</button>
+  <!-- Search + Tambah Penjualan -->
+  <div style="display:flex; gap:10px; align-items:center; margin-bottom:18px;">
+    <div class="search-wrap" style="flex:1; margin-bottom:0;">
+      <span class="search-icon">🔍</span>
+      <input type="text" class="search-input" id="pjSearch" placeholder="Cari tanggal atau nama produk…" oninput="onPjSearch(this)">
+      <button class="search-clear" id="pjSearchClear" onclick="clearPjSearch()">✕</button>
+    </div>
+    <button class="btn-save" onclick="openPjModal()" style="white-space:nowrap; border-radius:30px; padding:10px 18px;">＋ Tambah</button>
   </div>
   <div class="search-count" id="pjSearchCount" style="display:none"></div>
-
+  
   <!-- Table -->
   <div class="pj-table-wrap">
     <table class="pj-table">
@@ -946,7 +952,6 @@
     </table>
   </div>
 
-  <button class="btn-add" onclick="openPjModal()">＋ Tambah Penjualan</button>
 </main>
 <main id="page-todo" style="display:none; max-width:860px; margin:0 auto; padding:36px 32px 60px;">
   <div class="page-title">To Do List</div>
