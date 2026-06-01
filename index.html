@@ -2043,20 +2043,49 @@ function savePjEntry() {
   }
   if (!kuantitas || !hargaJual) { alert('Kuantitas dan harga jual harus diisi.'); return; }
 
+  const entryId = pjEditIdx !== null ? pjEntries[pjEditIdx].id : crypto.randomUUID();
+
   const entry = {
-    id: pjEditIdx !== null ? pjEntries[pjEditIdx].id : crypto.randomUUID(),
+    id: entryId,
     tanggal, produkId, produkNama, keterangan, kuantitas, hargaJual, hppPerItem
   };
   if (pjEditIdx !== null) pjEntries[pjEditIdx] = entry; else pjEntries.push(entry);
   pjSave(); renderPj(); closePjModal();
-}
 
+  // ── Auto-sync ke Pembukuan ──────────────────────────────
+  const omzet = kuantitas * hargaJual;
+  const pbRef = 'pj_ref_' + entryId; // ID unik yang menghubungkan ke entri penjualan
+
+  // Cek apakah sudah ada entri pembukuan dari penjualan ini (mode edit)
+  const existingPbIdx = pbEntries.findIndex(e => e.pjRef === pbRef);
+
+  const pbEntry = {
+    id: existingPbIdx !== -1 ? pbEntries[existingPbIdx].id : crypto.randomUUID(),
+    pjRef: pbRef,
+    tanggal,
+    keterangan: 'Penjualan: ' + produkNama + (keterangan ? ' (' + keterangan + ')' : ''),
+    masuk: omzet,
+    keluar: 0,
+  };
+
+  if (existingPbIdx !== -1) {
+    pbEntries[existingPbIdx] = pbEntry; // update
+  } else {
+    pbEntries.push(pbEntry); // tambah baru
+  }
+
+  pbSave(); renderPb();
+}
 function editPjEntry(i)   { openPjModal(i); }
 function deletePjEntry(i) {
   if (!confirm(`Hapus entri penjualan "${pjEntries[i].produkNama}"?`)) return;
+  const pbRef = 'pj_ref_' + pjEntries[i].id;
   pjEntries.splice(i, 1); pjSave(); renderPj();
-}
 
+  // Hapus juga entri pembukuan yang terkait
+  const pbIdx = pbEntries.findIndex(e => e.pjRef === pbRef);
+  if (pbIdx !== -1) { pbEntries.splice(pbIdx, 1); pbSave(); renderPb(); }
+}
 init();
 pbInit();
 pjInit();
