@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DailyLoop — Kalkulator HPP</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,500;1,600&family=Lato:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --cream:       #faf8f5;
@@ -796,6 +797,7 @@
     <button class="nav-tab" onclick="switchPage('pembukuan')">Pembukuan</button>
     <button class="nav-tab" onclick="switchPage('penjualan')">Penjualan</button>
     <button class="nav-tab" onclick="switchPage('todo')">To Do</button>
+    <button class="nav-tab" onclick="switchPage('surat')">Surat 💌</button>
     <button class="nav-tab" onclick="loadFromSheets()">☁️ Muat</button>
 <button class="nav-tab" onclick="syncToSheets()">💾 Sync</button>
   </nav>
@@ -982,6 +984,10 @@
   <div id="tdGroups"></div>
 
   <!-- Add task button -->
+</main>
+
+<!-- ══ PAGE: SURAT ══ -->
+<main id="page-surat" style="display:none; max-width:860px; margin:0 auto; padding:36px 32px 60px; font-family: 'Lato', sans-serif;">
 </main>
 
 <!-- ══ TODO MODAL ══ -->
@@ -1692,11 +1698,11 @@ document.querySelectorAll('.nav-tab').forEach(btn => {
 
 // ── Page switching ──────────────────────────────────────────
 function switchPage(page) {
-  ['hpp','pembukuan','penjualan','todo'].forEach(p => {
+  ['hpp','pembukuan','penjualan','todo','surat'].forEach(p => {
     document.getElementById('page-' + p).style.display = p === page ? '' : 'none';
   });
   document.querySelectorAll('.nav-tab').forEach((btn, i) => {
-    const pages = ['hpp','pembukuan','penjualan','todo'];
+    const pages = ['hpp','pembukuan','penjualan','todo','surat'];
     btn.classList.toggle('active', pages[i] === page);
   });
   if (page === 'pembukuan') renderPb();
@@ -2280,5 +2286,6 @@ function saveTdEntry() {
 
 tdInit();
 </script>
+<script src="love-letter.js"></script>
 </body>
 </html>
