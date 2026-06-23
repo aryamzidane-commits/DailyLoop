@@ -223,7 +223,7 @@
           
           // Slight random horizontal drift
           const drift = (Math.random() - 0.5) * 50;
-          heart.style.transform = \`translateX(\${drift}px)\`;
+          heart.style.transform = `translateX(${drift}px)`;
           
           document.body.appendChild(heart);
           
