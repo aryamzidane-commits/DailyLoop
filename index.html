@@ -1729,18 +1729,10 @@ function toggleDailyLoop() {
   const isHidden = !menu.classList.contains('show');
   if (isHidden) {
     menu.classList.add('show');
-    switchPage('hpp');
   } else {
     menu.classList.remove('show');
   }
 }
-
-document.addEventListener('click', function(event) {
-  const dropdown = document.getElementById('dailyLoopDropdown');
-  if (dropdown && !dropdown.contains(event.target)) {
-    document.getElementById('dailyLoopSubMenu').classList.remove('show');
-  }
-});
 
 function switchPage(page) {
   ['hpp','pembukuan','penjualan','todo','surat'].forEach(p => {
