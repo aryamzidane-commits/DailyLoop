@@ -82,6 +82,24 @@
     box-shadow: var(--shadow);
   }
 
+  /* ── Dropdown ── */
+  .dropdown { position: relative; display: inline-block; }
+  .dropdown-content {
+    display: none; position: absolute; background-color: var(--white);
+    min-width: 180px; box-shadow: var(--shadow); border-radius: var(--radius-sm);
+    z-index: 100; border: 1px solid var(--rose); overflow: hidden;
+    top: 100%; margin-top: 8px; right: 0;
+  }
+  @media(min-width: 601px) { .dropdown-content { right: auto; left: 0; } }
+  .dropdown-content a {
+    color: var(--text-dark); padding: 12px 16px; text-decoration: none;
+    display: block; font-size: 13px; font-family: 'DM Sans', sans-serif;
+    transition: background .2s, color .2s; border-bottom: 1px solid var(--blush);
+  }
+  .dropdown-content a:last-child { border-bottom: none; }
+  .dropdown-content a:hover { background-color: var(--cream); color: var(--dusty-rose); font-weight: 500; }
+  .dropdown:hover .dropdown-content { display: block; }
+
   /* ── Layout ── */
   main { max-width: 860px; margin: 0 auto; padding: 36px 32px 60px; }
 
@@ -793,13 +811,18 @@
     <img src="Logo DailyLoop.png" alt="DailyLoop" class="brand-logo">
   </div>
   <nav>
-    <button class="nav-tab active" onclick="switchPage('hpp')">Kalkulator HPP</button>
-    <button class="nav-tab" onclick="switchPage('pembukuan')">Pembukuan</button>
-    <button class="nav-tab" onclick="switchPage('penjualan')">Penjualan</button>
-    <button class="nav-tab" onclick="switchPage('todo')">To Do</button>
+    <div class="dropdown">
+      <button class="nav-tab active" id="dailyLoopMenuBtn">DailyLoop ▼</button>
+      <div class="dropdown-content">
+        <a href="#" onclick="switchPage('hpp'); return false;">Kalkulator HPP</a>
+        <a href="#" onclick="switchPage('pembukuan'); return false;">Pembukuan</a>
+        <a href="#" onclick="switchPage('penjualan'); return false;">Penjualan</a>
+        <a href="#" onclick="switchPage('todo'); return false;">To Do</a>
+      </div>
+    </div>
     <button class="nav-tab" onclick="switchPage('surat')">Surat 💌</button>
     <button class="nav-tab" onclick="loadFromSheets()">☁️ Muat</button>
-<button class="nav-tab" onclick="syncToSheets()">💾 Sync</button>
+    <button class="nav-tab" onclick="syncToSheets()">💾 Sync</button>
   </nav>
 </header>
 
@@ -1689,22 +1712,26 @@ function deleteProduct(i) {
   products.splice(i, 1); save(); renderAll(); checkAlerts();
 }
 
-document.querySelectorAll('.nav-tab').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-  });
-});
-
 // ── Page switching ──────────────────────────────────────────
 function switchPage(page) {
   ['hpp','pembukuan','penjualan','todo','surat'].forEach(p => {
     document.getElementById('page-' + p).style.display = p === page ? '' : 'none';
   });
-  document.querySelectorAll('.nav-tab').forEach((btn, i) => {
-    const pages = ['hpp','pembukuan','penjualan','todo','surat'];
-    btn.classList.toggle('active', pages[i] === page);
+  
+  const dailyLoopPages = ['hpp', 'pembukuan', 'penjualan', 'todo'];
+  const isDailyLoop = dailyLoopPages.includes(page);
+  
+  document.querySelectorAll('.nav-tab').forEach((btn) => {
+    if (btn.id === 'dailyLoopMenuBtn') {
+      btn.classList.toggle('active', isDailyLoop);
+    } else {
+      const onclick = btn.getAttribute('onclick') || '';
+      if (onclick.includes('switchPage')) {
+        btn.classList.toggle('active', onclick.includes(`'${page}'`));
+      }
+    }
   });
+
   if (page === 'pembukuan') renderPb();
   if (page === 'penjualan') renderPj();
 }
