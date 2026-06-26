@@ -1495,7 +1495,7 @@ async function loadFromSheets() {
     if (data.cpEntries && data.cpEntries.length > 0) {
       const converted = data.cpEntries.map(row => ({
         id:        row['ID'],
-        tanggal:   row['Tanggal'], // yyyy-mm-dd
+        tanggal:   formatCpDate(row['Tanggal']), // fix date parsing
         judul:     row['Judul Content'],
         pillar:    row['Content Pillar'],
         sosmed:    row['Jenis Sosmed'],
@@ -1618,6 +1618,20 @@ function formatTanggal(raw) {
     const mm = String(d.getMonth()+1).padStart(2,'0');
     const yyyy = d.getFullYear();
     return dd+'/'+mm+'/'+yyyy;
+  } catch(e) { return String(raw); }
+}
+
+function formatCpDate(raw) {
+  if (!raw) return '';
+  if (/^\d{4}-\d{2}-\d{2}$/.test(String(raw))) return String(raw).substring(0, 10);
+  try {
+    const str = String(raw).includes('T') ? raw : raw + 'T12:00:00';
+    const d = new Date(str);
+    if (isNaN(d.getTime())) return String(raw);
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
   } catch(e) { return String(raw); }
 }
 function calcHPP(p) {
