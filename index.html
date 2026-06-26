@@ -1882,6 +1882,7 @@ function toggleDailyLoop() {
 }
 
 function switchPage(page) {
+  localStorage.setItem('dailyloop_last_page', page);
   ['hpp','pembukuan','penjualan','todo','content','surat'].forEach(p => {
     document.getElementById('page-' + p).style.display = p === page ? '' : 'none';
   });
@@ -2635,6 +2636,11 @@ function saveTdEntry() {
 }
 
 tdInit();
+
+window.addEventListener('DOMContentLoaded', () => {
+  const lastPage = localStorage.getItem('dailyloop_last_page') || 'hpp';
+  switchPage(lastPage);
+});
 </script>
 <script src="love-letter.js"></script>
 </body>
