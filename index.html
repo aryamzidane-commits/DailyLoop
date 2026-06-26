@@ -2378,13 +2378,16 @@ function openCpDate(dateStr) {
   } else {
     listEl.innerHTML = dayEntries.map((e, idx) => {
       const realIdx = cpEntries.indexOf(e);
-      return `<div class="cp-list-item" onclick="openCpForm(${realIdx})">
-        <div class="cp-list-title">${e.judul}</div>
-        <div class="cp-list-meta">
-          <span class="cp-badge">${e.pillar}</span>
-          <span class="cp-badge">${e.sosmed}</span>
-          <span class="cp-badge cp-badge-status ${e.status.toLowerCase()}">${e.status}</span>
+      return `<div class="cp-list-item" style="display:flex; justify-content:space-between; align-items:center;">
+        <div style="flex:1;" onclick="openCpForm(${realIdx})">
+          <div class="cp-list-title">${e.judul}</div>
+          <div class="cp-list-meta">
+            <span class="cp-badge">${e.pillar}</span>
+            <span class="cp-badge">${e.sosmed}</span>
+            <span class="cp-badge cp-badge-status ${e.status.toLowerCase()}">${e.status}</span>
+          </div>
         </div>
+        <button class="btn-icon" style="margin-left:12px; padding:8px;" onclick="deleteCpEntry(${realIdx})" title="Hapus">🗑</button>
       </div>`;
     }).join('');
   }
@@ -2438,6 +2441,13 @@ function saveCpEntry() {
   cpSave(); renderCalendar();
   
   document.getElementById('cpFormModalOverlay').classList.remove('open');
+  openCpDate(cpCurrentDate);
+}
+
+function deleteCpEntry(idx) {
+  if (!confirm(`Hapus konten "${cpEntries[idx].judul}"?`)) return;
+  cpEntries.splice(idx, 1);
+  cpSave(); renderCalendar();
   openCpDate(cpCurrentDate);
 }
 
