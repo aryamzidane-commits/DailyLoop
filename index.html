@@ -814,14 +814,22 @@
     .pj-table th:nth-child(6), .pj-table td:nth-child(6) { display: none; }
   }
   /* ── Calendar / Content Planning ── */
+  .cal-container {
+    background: linear-gradient(135deg, #fcdce8 0%, #d4f0ff 50%, #e8dff5 100%);
+    border-radius: var(--radius);
+    box-shadow: 0 8px 32px rgba(100, 70, 60, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    padding: 24px;
+    margin-top: 20px;
+  }
   .cal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
-  .cal-nav-btn { background:var(--white); border:1px solid var(--rose); border-radius:50%; width:36px; height:36px; cursor:pointer; font-weight:bold; color:var(--text-dark); transition:.2s; display:flex; align-items:center; justify-content:center; }
-  .cal-nav-btn:hover { background:var(--rose); color:white; }
-  .cal-title { font-size:20px; font-weight:700; color:var(--text-dark); font-family: 'DM Serif Display', serif; }
+  .cal-nav-btn { background:rgba(255,255,255,0.7); backdrop-filter:blur(4px); border:1px solid rgba(255,255,255,0.5); border-radius:50%; width:36px; height:36px; cursor:pointer; font-weight:bold; color:var(--text-dark); transition:.2s; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 8px rgba(0,0,0,0.05); }
+  .cal-nav-btn:hover { background:var(--rose); color:white; border-color:var(--rose); }
+  .cal-title { font-size:20px; font-weight:700; color:var(--text-dark); font-family: 'DM Serif Display', serif; text-shadow: 0 1px 2px rgba(255,255,255,0.8); }
   .cal-grid { display:grid; grid-template-columns:repeat(7, 1fr); gap:8px; }
-  .cal-day-name { text-align:center; font-size:12px; font-weight:600; color:var(--text-mid); padding-bottom:8px; }
-  .cal-cell { background:var(--white); border:1px solid var(--cream); border-radius:8px; min-height:80px; padding:8px; cursor:pointer; transition:.2s; position:relative; display:flex; flex-direction:column; gap:4px; }
-  .cal-cell:hover { border-color:var(--rose); box-shadow:0 4px 12px rgba(100,70,60,0.08); }
+  .cal-day-name { text-align:center; font-size:12px; font-weight:700; color:var(--text-dark); padding-bottom:8px; opacity:0.8; }
+  .cal-cell { background:rgba(255, 255, 255, 0.65); backdrop-filter:blur(8px); border:1px solid rgba(255, 255, 255, 0.8); border-radius:12px; min-height:80px; padding:8px; cursor:pointer; transition:all .3s ease; position:relative; display:flex; flex-direction:column; gap:4px; box-shadow:0 4px 12px rgba(0,0,0,0.02); }
+  .cal-cell:hover { background:rgba(255,255,255,0.9); border-color:var(--rose); transform:translateY(-2px); box-shadow:0 8px 16px rgba(100,70,60,0.1); }
   .cal-cell.empty { background:transparent; border:none; cursor:default; }
   .cal-cell.empty:hover { box-shadow:none; }
   .cal-date-num { font-size:14px; font-weight:600; color:var(--text-dark); align-self:flex-end; margin-bottom:4px; }
@@ -1057,7 +1065,7 @@
   <div class="page-title">Content Planning</div>
   <p class="page-sub">Rencanakan konten sosial media harianmu di sini.</p>
 
-  <div style="background:var(--white); border-radius:var(--radius); box-shadow:var(--shadow); border:1px solid var(--rose); padding:24px; margin-top:20px;">
+  <div class="cal-container">
     <div class="cal-header">
       <button class="cal-nav-btn" onclick="cpPrevMonth()">❮</button>
       <div class="cal-title" id="calMonthYear">Bulan Tahun</div>
