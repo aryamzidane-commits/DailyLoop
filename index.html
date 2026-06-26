@@ -828,15 +828,19 @@
   .cal-title { font-size:20px; font-weight:700; color:var(--text-dark); font-family: 'DM Serif Display', serif; text-shadow: 0 1px 2px rgba(255,255,255,0.8); }
   .cal-grid { display:grid; grid-template-columns:repeat(7, 1fr); gap:8px; }
   .cal-day-name { text-align:center; font-size:12px; font-weight:700; color:var(--text-dark); padding-bottom:8px; opacity:0.8; }
-  .cal-cell { background:rgba(255, 255, 255, 0.65); backdrop-filter:blur(8px); border:1px solid rgba(255, 255, 255, 0.8); border-radius:12px; min-height:80px; padding:8px; cursor:pointer; transition:all .3s ease; position:relative; display:flex; flex-direction:column; gap:4px; box-shadow:0 4px 12px rgba(0,0,0,0.02); }
+  .cal-cell { background:rgba(255, 255, 255, 0.65); backdrop-filter:blur(8px); border:1px solid rgba(255, 255, 255, 0.8); border-radius:12px; height:120px; padding:8px; cursor:pointer; transition:all .3s ease; position:relative; display:flex; flex-direction:column; gap:4px; box-shadow:0 4px 12px rgba(0,0,0,0.02); }
   .cal-cell:hover { background:rgba(255,255,255,0.9); border-color:var(--rose); transform:translateY(-2px); box-shadow:0 8px 16px rgba(100,70,60,0.1); }
   .cal-cell.empty { background:transparent; border:none; cursor:default; }
-  .cal-cell.empty:hover { box-shadow:none; }
-  .cal-date-num { font-size:14px; font-weight:600; color:var(--text-dark); align-self:flex-end; margin-bottom:4px; }
-  .cal-cell.today .cal-date-num { background:var(--rose); color:white; width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; }
+  .cal-cell.empty:hover { box-shadow:none; transform:none; }
+  .cal-date-num { font-size:14px; font-weight:600; color:var(--text-dark); align-self:flex-end; margin-bottom:4px; flex-shrink: 0; }
+  .cal-cell.today .cal-date-num { background:var(--rose); color:white; width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; align-self: flex-end; }
   
-  .cp-indicator { font-size:10px; background:var(--blush); color:var(--text-dark); border-radius:4px; padding:2px 4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:flex; gap:4px; align-items:center; }
-  .cp-indicator::before { content:''; display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--dusty-rose); }
+  .cal-indicators { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; padding-right: 2px; }
+  .cal-indicators::-webkit-scrollbar { width: 4px; }
+  .cal-indicators::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 4px; }
+  
+  .cp-indicator { font-size:10px; background:var(--blush); color:var(--text-dark); border-radius:4px; padding:4px; white-space:normal; line-height:1.2; word-wrap:break-word; display:flex; gap:4px; align-items:flex-start; }
+  .cp-indicator::before { content:''; display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--dusty-rose); flex-shrink:0; margin-top:3px; }
   .cp-indicator.published::before { background:#5a9a6a; }
   
   .cp-list-item { background:var(--white); border:1px solid var(--rose); border-radius:8px; padding:12px; margin-bottom:8px; cursor:pointer; transition:.2s; }
@@ -2371,7 +2375,7 @@ function renderCalendar() {
     
     html += `<div class="cal-cell ${isToday ? 'today' : ''}" onclick="openCpDate('${dateStr}')">
       <div class="cal-date-num">${d}</div>
-      ${indicators}
+      <div class="cal-indicators">${indicators}</div>
     </div>`;
   }
   
