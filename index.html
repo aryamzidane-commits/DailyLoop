@@ -813,6 +813,37 @@
     .pj-summary-row { grid-template-columns: 1fr 1fr; }
     .pj-table th:nth-child(6), .pj-table td:nth-child(6) { display: none; }
   }
+  /* ── Calendar / Content Planning ── */
+  .cal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+  .cal-nav-btn { background:var(--white); border:1px solid var(--rose); border-radius:50%; width:36px; height:36px; cursor:pointer; font-weight:bold; color:var(--text-dark); transition:.2s; display:flex; align-items:center; justify-content:center; }
+  .cal-nav-btn:hover { background:var(--rose); color:white; }
+  .cal-title { font-size:20px; font-weight:700; color:var(--text-dark); font-family: 'DM Serif Display', serif; }
+  .cal-grid { display:grid; grid-template-columns:repeat(7, 1fr); gap:8px; }
+  .cal-day-name { text-align:center; font-size:12px; font-weight:600; color:var(--text-mid); padding-bottom:8px; }
+  .cal-cell { background:var(--white); border:1px solid var(--cream); border-radius:8px; min-height:80px; padding:8px; cursor:pointer; transition:.2s; position:relative; display:flex; flex-direction:column; gap:4px; }
+  .cal-cell:hover { border-color:var(--rose); box-shadow:0 4px 12px rgba(100,70,60,0.08); }
+  .cal-cell.empty { background:transparent; border:none; cursor:default; }
+  .cal-cell.empty:hover { box-shadow:none; }
+  .cal-date-num { font-size:14px; font-weight:600; color:var(--text-dark); align-self:flex-end; margin-bottom:4px; }
+  .cal-cell.today .cal-date-num { background:var(--rose); color:white; width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; }
+  
+  .cp-indicator { font-size:10px; background:var(--blush); color:var(--text-dark); border-radius:4px; padding:2px 4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:flex; gap:4px; align-items:center; }
+  .cp-indicator::before { content:''; display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--dusty-rose); }
+  .cp-indicator.published::before { background:#5a9a6a; }
+  
+  .cp-list-item { background:var(--white); border:1px solid var(--rose); border-radius:8px; padding:12px; margin-bottom:8px; cursor:pointer; transition:.2s; }
+  .cp-list-item:hover { background:var(--cream); }
+  .cp-list-title { font-weight:600; font-size:14px; margin-bottom:4px; color:var(--text-dark); }
+  .cp-list-meta { font-size:11px; color:var(--text-mid); display:flex; gap:8px; flex-wrap:wrap; }
+  .cp-badge { padding:2px 6px; border-radius:4px; background:var(--sage); color:var(--text-dark); font-weight:500; }
+  .cp-badge-status.published { background:#c8d8cc; }
+  .cp-badge-status.pending { background:#f2e8e4; }
+  .cp-badge-status.draft { background:#e4e8f2; }
+  @media(max-width: 600px) {
+    .cal-cell { min-height:60px; padding:4px; }
+    .cal-date-num { font-size:12px; }
+    .cp-indicator { font-size:9px; padding:2px; }
+  }
 </style>
 </head>
 <body>
@@ -829,6 +860,7 @@
         <a href="#" class="sub-tab" onclick="switchPage('pembukuan'); return false;">Pembukuan</a>
         <a href="#" class="sub-tab" onclick="switchPage('penjualan'); return false;">Penjualan</a>
         <a href="#" class="sub-tab" onclick="switchPage('todo'); return false;">To Do</a>
+        <a href="#" class="sub-tab" onclick="switchPage('content'); return false;">Content Planning</a>
       </div>
     </div>
     <button class="nav-tab" onclick="switchPage('surat')">Surat 💌</button>
@@ -1020,6 +1052,23 @@
   <!-- Add task button -->
 </main>
 
+<!-- ══ PAGE: CONTENT PLANNING ══ -->
+<main id="page-content" style="display:none; max-width:960px; margin:0 auto; padding:36px 32px 60px;">
+  <div class="page-title">Content Planning</div>
+  <p class="page-sub">Rencanakan konten sosial media harianmu di sini.</p>
+
+  <div style="background:var(--white); border-radius:var(--radius); box-shadow:var(--shadow); border:1px solid var(--rose); padding:24px; margin-top:20px;">
+    <div class="cal-header">
+      <button class="cal-nav-btn" onclick="cpPrevMonth()">❮</button>
+      <div class="cal-title" id="calMonthYear">Bulan Tahun</div>
+      <button class="cal-nav-btn" onclick="cpNextMonth()">❯</button>
+    </div>
+    <div class="cal-grid" id="calGrid">
+      <!-- rendered by JS -->
+    </div>
+  </div>
+</main>
+
 <!-- ══ PAGE: SURAT ══ -->
 <main id="page-surat" style="display:none; max-width:860px; margin:0 auto; padding:36px 32px 60px; font-family: 'Lato', sans-serif;">
 </main>
@@ -1064,6 +1113,67 @@
     <div class="modal-footer">
       <button class="btn-cancel" onclick="closeTdModal()">Batal</button>
       <button class="btn-save" onclick="saveTdEntry()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CONTENT PLANNING DATE MODAL ══ -->
+<div class="modal-overlay" id="cpDateModalOverlay">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="cpDateModalTitle">Konten Tanggal X</h3>
+      <button class="modal-close" onclick="closeCpDate()">✕</button>
+    </div>
+    <div class="modal-body" id="cpDateList" style="min-height:100px;">
+      <!-- Content list here -->
+    </div>
+    <div class="modal-footer" style="justify-content:center;">
+      <button class="btn-save" onclick="openCpForm()" style="width:100%">＋ Tambah Konten</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CONTENT PLANNING FORM MODAL ══ -->
+<div class="modal-overlay" id="cpFormModalOverlay" style="z-index:200;">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="cpFormModalTitle">Tambah Konten</h3>
+      <button class="modal-close" onclick="closeCpForm()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Judul Content</label>
+        <input type="text" id="cpJudul" placeholder="cth: BTS pembuatan tas">
+      </div>
+      <div class="form-group">
+        <label>Content Pillar</label>
+        <select id="cpPillar">
+          <option value="Edukasi">Edukasi</option>
+          <option value="Engage">Engage</option>
+          <option value="Promosi">Promosi</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Jenis Sosmed</label>
+          <select id="cpSosmed">
+            <option value="Instagram">Instagram</option>
+            <option value="TikTok">TikTok</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select id="cpStatus">
+            <option value="Pending">Pending</option>
+            <option value="Draft">Draft</option>
+            <option value="Published">Published</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeCpForm()">Batal</button>
+      <button class="btn-save" onclick="saveCpEntry()">Simpan</button>
     </div>
   </div>
 </div>
@@ -1280,6 +1390,7 @@ async function syncToSheets() {
       pbEntries: typeof pbEntries !== 'undefined' ? pbEntries : [],
       pjEntries: typeof pjEntries !== 'undefined' ? pjEntries : [],
       tdEntries: typeof tdEntries !== 'undefined' ? tdEntries : [],
+      cpEntries: typeof cpEntries !== 'undefined' ? cpEntries : [],
     };
 
     const res = await fetch(SHEETS_URL, {
@@ -1373,6 +1484,19 @@ async function loadFromSheets() {
       _origSetItem('td_entries_v1', JSON.stringify(converted));
     }
 
+    if (data.cpEntries && data.cpEntries.length > 0) {
+      const converted = data.cpEntries.map(row => ({
+        id:        row['ID'],
+        tanggal:   row['Tanggal'], // yyyy-mm-dd
+        judul:     row['Judul Content'],
+        pillar:    row['Content Pillar'],
+        sosmed:    row['Jenis Sosmed'],
+        status:    row['Status'],
+      }));
+      cpEntries = converted;
+      _origSetItem('cp_entries_v1', JSON.stringify(converted));
+    }
+
     showSyncStatus('✅ Data berhasil dimuat dari Sheets!', 'success');
 
     // Refresh tampilan
@@ -1380,6 +1504,7 @@ async function loadFromSheets() {
     if (typeof pbInit  === 'function') pbInit();
     if (typeof pjInit  === 'function') pjInit();
     if (typeof tdInit  === 'function') tdInit();
+    if (typeof cpInit  === 'function') cpInit();
 
   } catch (err) {
     showSyncStatus('❌ Error: ' + err.message, 'error');
@@ -1735,11 +1860,11 @@ function toggleDailyLoop() {
 }
 
 function switchPage(page) {
-  ['hpp','pembukuan','penjualan','todo','surat'].forEach(p => {
+  ['hpp','pembukuan','penjualan','todo','content','surat'].forEach(p => {
     document.getElementById('page-' + p).style.display = p === page ? '' : 'none';
   });
   
-  const dailyLoopPages = ['hpp', 'pembukuan', 'penjualan', 'todo'];
+  const dailyLoopPages = ['hpp', 'pembukuan', 'penjualan', 'todo', 'content'];
   const isDailyLoop = dailyLoopPages.includes(page);
   
   document.querySelectorAll('.nav-tab').forEach((btn) => {
@@ -1760,6 +1885,7 @@ function switchPage(page) {
 
   if (page === 'pembukuan') renderPb();
   if (page === 'penjualan') renderPj();
+  if (page === 'content') cpInit();
 }
 
 // ── Pembukuan ───────────────────────────────────────────────
@@ -2167,6 +2293,145 @@ function deletePjEntry(i) {
 init();
 pbInit();
 pjInit();
+
+// ── Content Planning ─────────────────────────────────────────
+const CP_KEY = 'cp_entries_v1';
+let cpEntries = [];
+let cpEditIdx = null;
+let cpCurrentDate = null; // yyyy-mm-dd
+let calMonth = new Date().getMonth();
+let calYear = new Date().getFullYear();
+
+const cpSeed = [
+  { id: crypto.randomUUID(), tanggal: new Date().toISOString().split('T')[0], judul: 'BTS Pembuatan Tas', pillar: 'Engage', sosmed: 'Instagram', status: 'Draft' }
+];
+
+function cpInit() {
+  const saved = localStorage.getItem(CP_KEY);
+  cpEntries = saved ? JSON.parse(saved) : cpSeed;
+  renderCalendar();
+}
+
+function cpSave() {
+  localStorage.setItem(CP_KEY, JSON.stringify(cpEntries));
+}
+
+const namaBulan = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+
+function renderCalendar() {
+  document.getElementById('calMonthYear').textContent = `${namaBulan[calMonth]} ${calYear}`;
+  const grid = document.getElementById('calGrid');
+  
+  let html = '';
+  const hari = ['Sen','Sel','Rab','Kam','Jum','Sab','Min'];
+  hari.forEach(h => html += `<div class="cal-day-name">${h}</div>`);
+  
+  const firstDay = new Date(calYear, calMonth, 1).getDay();
+  const emptyCells = firstDay === 0 ? 6 : firstDay - 1; // 0=Sun, so if Sun, 6 empty cells.
+  
+  for (let i = 0; i < emptyCells; i++) {
+    html += `<div class="cal-cell empty"></div>`;
+  }
+  
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+  const todayDate = new Date();
+  
+  for (let d = 1; d <= daysInMonth; d++) {
+    const isToday = (todayDate.getDate() === d && todayDate.getMonth() === calMonth && todayDate.getFullYear() === calYear);
+    const dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const dayEntries = cpEntries.filter(e => e.tanggal === dateStr);
+    
+    let indicators = '';
+    dayEntries.forEach(e => {
+      indicators += `<div class="cp-indicator ${e.status.toLowerCase()}">${e.judul}</div>`;
+    });
+    
+    html += `<div class="cal-cell ${isToday ? 'today' : ''}" onclick="openCpDate('${dateStr}')">
+      <div class="cal-date-num">${d}</div>
+      ${indicators}
+    </div>`;
+  }
+  
+  grid.innerHTML = html;
+}
+
+function cpPrevMonth() { calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; } renderCalendar(); }
+function cpNextMonth() { calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; } renderCalendar(); }
+
+function openCpDate(dateStr) {
+  cpCurrentDate = dateStr;
+  const [y, m, d] = dateStr.split('-');
+  document.getElementById('cpDateModalTitle').textContent = `Konten ${parseInt(d)} ${namaBulan[parseInt(m)-1]} ${y}`;
+  
+  const dayEntries = cpEntries.filter(e => e.tanggal === dateStr);
+  const listEl = document.getElementById('cpDateList');
+  if (dayEntries.length === 0) {
+    listEl.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-light);">Belum ada konten untuk tanggal ini.</div>`;
+  } else {
+    listEl.innerHTML = dayEntries.map((e, idx) => {
+      const realIdx = cpEntries.indexOf(e);
+      return `<div class="cp-list-item" onclick="openCpForm(${realIdx})">
+        <div class="cp-list-title">${e.judul}</div>
+        <div class="cp-list-meta">
+          <span class="cp-badge">${e.pillar}</span>
+          <span class="cp-badge">${e.sosmed}</span>
+          <span class="cp-badge cp-badge-status ${e.status.toLowerCase()}">${e.status}</span>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  
+  document.getElementById('cpDateModalOverlay').classList.add('open');
+}
+
+function closeCpDate() { document.getElementById('cpDateModalOverlay').classList.remove('open'); }
+
+function openCpForm(idx = null) {
+  cpEditIdx = idx;
+  if (idx !== null) {
+    const e = cpEntries[idx];
+    document.getElementById('cpFormModalTitle').textContent = 'Edit Konten';
+    document.getElementById('cpJudul').value  = e.judul;
+    document.getElementById('cpPillar').value = e.pillar;
+    document.getElementById('cpSosmed').value = e.sosmed;
+    document.getElementById('cpStatus').value = e.status;
+  } else {
+    document.getElementById('cpFormModalTitle').textContent = 'Tambah Konten';
+    document.getElementById('cpJudul').value  = '';
+    document.getElementById('cpPillar').value = 'Edukasi';
+    document.getElementById('cpSosmed').value = 'Instagram';
+    document.getElementById('cpStatus').value = 'Pending';
+  }
+  closeCpDate();
+  document.getElementById('cpFormModalOverlay').classList.add('open');
+}
+
+function closeCpForm() { 
+  document.getElementById('cpFormModalOverlay').classList.remove('open');
+  if (cpCurrentDate) openCpDate(cpCurrentDate);
+}
+
+function saveCpEntry() {
+  const judul = document.getElementById('cpJudul').value.trim();
+  if (!judul) { alert('Judul konten harus diisi.'); return; }
+  
+  const entry = {
+    id: cpEditIdx !== null ? cpEntries[cpEditIdx].id : crypto.randomUUID(),
+    tanggal: cpEditIdx !== null ? cpEntries[cpEditIdx].tanggal : cpCurrentDate,
+    judul,
+    pillar: document.getElementById('cpPillar').value,
+    sosmed: document.getElementById('cpSosmed').value,
+    status: document.getElementById('cpStatus').value
+  };
+  
+  if (cpEditIdx !== null) cpEntries[cpEditIdx] = entry; 
+  else cpEntries.push(entry);
+  
+  cpSave(); renderCalendar();
+  
+  document.getElementById('cpFormModalOverlay').classList.remove('open');
+  openCpDate(cpCurrentDate);
+}
 
 // ── To Do ───────────────────────────────────────────────────
 const TD_KEY = 'td_entries_v1';
