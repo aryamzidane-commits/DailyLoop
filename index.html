@@ -2344,6 +2344,11 @@ function cpInit() {
   const saved = localStorage.getItem(CP_KEY);
   cpEntries = saved ? JSON.parse(saved) : cpSeed;
   renderCalendar();
+  
+  const savedDate = localStorage.getItem('dailyloop_cp_open_date');
+  if (savedDate) {
+    setTimeout(() => openCpDate(savedDate), 50);
+  }
 }
 
 function cpSave() {
@@ -2394,6 +2399,7 @@ function cpNextMonth() { calMonth++; if (calMonth > 11) { calMonth = 0; calYear+
 
 function openCpDate(dateStr) {
   cpCurrentDate = dateStr;
+  localStorage.setItem('dailyloop_cp_open_date', dateStr);
   const [y, m, d] = dateStr.split('-');
   document.getElementById('cpDateModalTitle').textContent = `Konten ${parseInt(d)} ${namaBulan[parseInt(m)-1]} ${y}`;
   
@@ -2426,6 +2432,7 @@ function openCpDate(dateStr) {
 }
 
 function closeCpDate() { 
+  localStorage.removeItem('dailyloop_cp_open_date');
   const page = document.getElementById('page-content');
   const wrapper = document.getElementById('cpSidePanelWrapper');
   wrapper.style.width = '0';
