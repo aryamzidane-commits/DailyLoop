@@ -856,6 +856,38 @@
     .cal-date-num { font-size:12px; }
     .cp-indicator { font-size:9px; padding:2px; }
   }
+
+  /* ── Content Planning Layout ── */
+  #page-content {
+    max-width: 960px; margin: 0 auto; padding: 36px 32px 60px;
+    transition: max-width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  #page-content.panel-open {
+    max-width: 1160px;
+  }
+  .cp-layout {
+    display: flex; gap: 28px; align-items: flex-start;
+  }
+  .cp-side-wrapper {
+    width: 0; max-height: none; overflow: hidden; opacity: 0;
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, margin 0.4s ease;
+    flex-shrink: 0;
+  }
+  .cp-side-panel {
+    width: 340px; background: var(--white); border-radius: var(--radius);
+    box-shadow: var(--shadow); border: 1px solid var(--rose); padding: 24px;
+  }
+  #page-content.panel-open .cp-side-wrapper {
+    width: 340px; opacity: 1;
+  }
+  
+  @media(max-width: 800px) {
+    #page-content { padding: 24px 16px 48px; }
+    .cp-layout { flex-direction: column; gap: 0; }
+    .cp-side-wrapper { width: 100% !important; max-height: 0; margin-top: 0; }
+    #page-content.panel-open .cp-side-wrapper { max-height: 900px; margin-top: 16px; opacity: 1; }
+    .cp-side-panel { width: 100%; box-sizing: border-box; }
+  }
 </style>
 </head>
 <body>
@@ -1065,8 +1097,8 @@
 </main>
 
 <!-- ══ PAGE: CONTENT PLANNING ══ -->
-<main id="page-content" style="display:none; max-width:960px; margin:0 auto; padding:36px 32px 60px; transition: max-width 0.4s cubic-bezier(0.4, 0, 0.2, 1);">
-  <div style="display: flex; gap: 28px; align-items: flex-start;">
+<main id="page-content" style="display:none;">
+  <div class="cp-layout">
     <!-- Kiri: Title & Calendar -->
     <div style="flex: 1; min-width: 0;">
       <div class="page-title">Content Planning</div>
@@ -1085,8 +1117,8 @@
     </div>
     
     <!-- Kanan: Side Panel -->
-    <div id="cpSidePanelWrapper" style="width: 0; overflow: hidden; opacity: 0; transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease; flex-shrink: 0;">
-      <div id="cpSidePanel" style="width: 340px; background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid var(--rose); padding: 24px;">
+    <div id="cpSidePanelWrapper" class="cp-side-wrapper">
+      <div id="cpSidePanel" class="cp-side-panel">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--rose); padding-bottom: 12px;">
            <h3 id="cpDateModalTitle" style="font-family: 'DM Serif Display', serif; font-size: 17px; color: var(--text-dark);">Konten Tanggal X</h3>
            <button onclick="closeCpDate()" style="background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-mid); transition: color 0.2s;">✕</button>
@@ -2425,21 +2457,16 @@ function openCpDate(dateStr) {
   }
   
   const page = document.getElementById('page-content');
-  const wrapper = document.getElementById('cpSidePanelWrapper');
-  page.style.maxWidth = '1160px';
-  wrapper.style.width = '340px';
-  wrapper.style.opacity = '1';
+  // Gunakan setTimeout kecil untuk trigger animasi dengan class
+  setTimeout(() => {
+    page.classList.add('panel-open');
+  }, 10);
 }
 
 function closeCpDate() { 
   localStorage.removeItem('dailyloop_cp_open_date');
   const page = document.getElementById('page-content');
-  const wrapper = document.getElementById('cpSidePanelWrapper');
-  wrapper.style.width = '0';
-  wrapper.style.opacity = '0';
-  setTimeout(() => {
-    page.style.maxWidth = '960px';
-  }, 150); 
+  page.classList.remove('panel-open');
 }
 
 function openCpForm(idx = null) {
