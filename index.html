@@ -1085,16 +1085,18 @@
     </div>
     
     <!-- Kanan: Side Panel -->
-    <div id="cpSidePanel" style="display: none; width: 340px; flex-shrink: 0; background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid var(--rose); padding: 24px; opacity: 0; transform: translateX(20px); transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--rose); padding-bottom: 12px;">
-         <h3 id="cpDateModalTitle" style="font-family: 'DM Serif Display', serif; font-size: 17px; color: var(--text-dark);">Konten Tanggal X</h3>
-         <button onclick="closeCpDate()" style="background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-mid); transition: color 0.2s;">✕</button>
-      </div>
-      <div id="cpDateList" style="min-height: 100px; max-height: 480px; overflow-y: auto; margin-right: -8px; padding-right: 8px;">
-         <!-- Content list here -->
-      </div>
-      <div style="margin-top: 16px;">
-         <button class="btn-save" onclick="openCpForm()" style="width: 100%;">＋ Tambah Konten</button>
+    <div id="cpSidePanelWrapper" style="width: 0; overflow: hidden; opacity: 0; transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease; flex-shrink: 0;">
+      <div id="cpSidePanel" style="width: 340px; background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid var(--rose); padding: 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--rose); padding-bottom: 12px;">
+           <h3 id="cpDateModalTitle" style="font-family: 'DM Serif Display', serif; font-size: 17px; color: var(--text-dark);">Konten Tanggal X</h3>
+           <button onclick="closeCpDate()" style="background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-mid); transition: color 0.2s;">✕</button>
+        </div>
+        <div style="margin-bottom: 16px;">
+           <button class="btn-save" onclick="openCpForm()" style="width: 100%;">＋ Tambah Konten</button>
+        </div>
+        <div id="cpDateList" style="min-height: 100px; max-height: 480px; overflow-y: auto; margin-right: -8px; padding-right: 8px;">
+           <!-- Content list here -->
+        </div>
       </div>
     </div>
   </div>
@@ -2417,25 +2419,20 @@ function openCpDate(dateStr) {
   }
   
   const page = document.getElementById('page-content');
-  const panel = document.getElementById('cpSidePanel');
+  const wrapper = document.getElementById('cpSidePanelWrapper');
   page.style.maxWidth = '1160px';
-  panel.style.display = 'block';
-  // Allow browser to render block before animating opacity
-  setTimeout(() => {
-    panel.style.opacity = '1';
-    panel.style.transform = 'translateX(0)';
-  }, 10);
+  wrapper.style.width = '340px';
+  wrapper.style.opacity = '1';
 }
 
 function closeCpDate() { 
   const page = document.getElementById('page-content');
-  const panel = document.getElementById('cpSidePanel');
-  panel.style.opacity = '0';
-  panel.style.transform = 'translateX(20px)';
+  const wrapper = document.getElementById('cpSidePanelWrapper');
+  wrapper.style.width = '0';
+  wrapper.style.opacity = '0';
   setTimeout(() => {
-    panel.style.display = 'none';
     page.style.maxWidth = '960px';
-  }, 400); 
+  }, 150); 
 }
 
 function openCpForm(idx = null) {
